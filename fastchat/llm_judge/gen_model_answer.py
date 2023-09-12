@@ -169,6 +169,7 @@ def get_model_answers(
                 "choices": choices,
                 "tstamp": time.time(),
             }
+            print(choices)
             fout.write(json.dumps(ans_json, ensure_ascii=False) + "\n")
 
 
