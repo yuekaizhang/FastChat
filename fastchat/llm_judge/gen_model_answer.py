@@ -14,7 +14,8 @@ import torch
 from tqdm import tqdm
 
 from fastchat.llm_judge.common import load_questions, temperature_config
-from fastchat.model import load_model, get_conversation_template
+from fastchat.model import load_model
+from fastchat.conversation import get_conv_template
 
 
 def run_eval(
@@ -95,7 +96,8 @@ def get_model_answers(
         choices = []
         for i in range(num_choices):
             torch.manual_seed(i)
-            conv = get_conversation_template(model_id)
+            # conv = get_conversation_template(model_id)
+            conv = get_conv_template(model_id)
             turns = []
             for j in range(len(question["turns"])):
                 qs = question["turns"][j]
@@ -167,7 +169,7 @@ def get_model_answers(
                 "choices": choices,
                 "tstamp": time.time(),
             }
-            fout.write(json.dumps(ans_json) + "\n")
+            fout.write(json.dumps(ans_json, ensure_ascii=False) + "\n")
 
 
 def reorg_answer_file(answer_file):
@@ -234,6 +236,18 @@ if __name__ == "__main__":
         type=str,
         help="Maxmum GPU memory used for model weights per GPU.",
     )
+    parser.add_argument(
+        "--question-file",
+        type=str,
+        default="question.jsonl",
+        help="The name of the question file.",
+    )
+    parser.add_argument(
+        "--prefix",
+        type=str,
+        default="",
+        help="The name of the answer file postfix name.",
+    )
     args = parser.parse_args()
 
     if args.num_gpus_total // args.num_gpus_per_model > 1:
@@ -241,11 +255,11 @@ if __name__ == "__main__":
 
         ray.init()
 
-    question_file = f"data/{args.bench_name}/question.jsonl"
+    question_file = f"data/{args.bench_name}/{args.question_file}"
     if args.answer_file:
         answer_file = args.answer_file
     else:
-        answer_file = f"data/{args.bench_name}/model_answer/{args.model_id}.jsonl"
+        answer_file = f"data/{args.bench_name}/model_answer/{args.model_id}-{args.prefix}.jsonl"
 
     print(f"Output to {answer_file}")
 

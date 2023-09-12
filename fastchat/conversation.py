@@ -916,6 +916,19 @@ register_conv_template(
     )
 )
 
+register_conv_template(
+    Conversation(
+        name="baichuan2-chat",
+        roles=("<reserved_106>", "<reserved_107>"),
+        system_template="",
+        system_message=(),
+        offset=0,
+        sep_style=SeparatorStyle.NO_COLON_TWO,
+        sep="",
+        sep2="</s>",
+        stop_token_ids=[2, 195],
+    )
+)
 
 if __name__ == "__main__":
     print("Vicuna template:")
